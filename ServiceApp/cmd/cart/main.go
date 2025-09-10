@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"time"
 
 	httpSwagger "github.com/swaggo/http-swagger"
+	"github.com/verbovyar/OzonCart/config"
 	"github.com/verbovyar/OzonCart/internal/handlers"
 	"github.com/verbovyar/OzonCart/internal/middleware"
 	"github.com/verbovyar/OzonCart/internal/repositories/db/postgres"
@@ -15,9 +17,17 @@ import (
 )
 
 func main() {
-	postgresStore := RunPostgres("")
-	cartService := RunService("", "", postgresStore)
-	RunHttp(cartService)
+	conf, err := config.LoadConfig("./config")
+	if err != nil {
+		println(err.Error())
+	}
+	fmt.Println("//")
+	fmt.Println(conf.HttpPort, conf.SwaggerPort)
+	fmt.Println("//")
+
+	postgresStore := RunPostgres(conf.ConnectingString)
+	cartService := RunService(conf.ProductURL, conf.ProductToken, postgresStore)
+	RunHttp(cartService, conf.HttpPort, conf.SwaggerPort)
 }
 
 func RunPostgres(connectionString string) *postgres.Store {
@@ -34,17 +44,17 @@ func RunService(productURL, productToken string, store interfaces.RepositoryIfac
 	return cs
 }
 
-func RunHttp(cs *service.CartService) {
+func RunHttp(cs *service.CartService, http_port, swager_port string) {
 	mux := http.NewServeMux()
 	mux.Handle("/user/", handlers.New(cs))           // handlers
 	mux.Handle("/swagger/", httpSwagger.WrapHandler) // swagger
 
 	handlerWithMW := middleware.Logging(mux)
 
-	log.Printf("HTTP server is listening on %s port: ", "")
-	log.Printf("Swagger UI: http://localhost%s/swagger/index.html", "")
+	log.Printf("HTTP server is listening on port%s", http_port)
+	log.Printf("Swagger UI: http://localhost%s/swagger/index.html", swager_port)
 
-	err := http.ListenAndServe("", handlerWithMW)
+	err := http.ListenAndServe(http_port, handlerWithMW)
 	if err != nil {
 		log.Fatal(err)
 	}
