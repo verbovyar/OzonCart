@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -21,9 +20,6 @@ func main() {
 	if err != nil {
 		println(err.Error())
 	}
-	fmt.Println("//")
-	fmt.Println(conf.HttpPort, conf.SwaggerPort)
-	fmt.Println("//")
 
 	postgresStore := RunPostgres(conf.ConnectingString)
 	cartService := RunService(conf.ProductURL, conf.ProductToken, postgresStore)
