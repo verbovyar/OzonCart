@@ -7,8 +7,7 @@ import (
 )
 
 type Config struct {
-	HttpPort         string `mapstructure:"HTTP_PORT"`
-	SwaggerPort      string `mapstructure:"SWAGGER_PORT"`
+	Port             string `mapstructure:"PORT"`
 	ConnectingString string `mapstructure:"CONNECTING_STRING"`
 	ProductURL       string `mapstructure:"PRODUCT_URL"`
 	ProductToken     string `mapstructure:"PRODUCT_TOKEN"`

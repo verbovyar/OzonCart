@@ -1,0 +1,132 @@
+basePath: /
+definitions:
+  domain.AddToCartRequest:
+    properties:
+      count:
+        maximum: 60000
+        type: integer
+    required:
+    - count
+    type: object
+  domain.CartItem:
+    properties:
+      count:
+        type: integer
+      name:
+        type: string
+      price:
+        type: integer
+      sku_id:
+        type: integer
+    type: object
+  domain.GetCartResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/domain.CartItem'
+        type: array
+      total_price:
+        type: integer
+    type: object
+info:
+  contact: {}
+  description: HTTP сервис корзины. Стандартная библиотека, Postgres, валидация, ретраи
+    к ProductService.
+  title: Cart Service
+  version: "1.0"
+paths:
+  /user/{user_id}/cart:
+    delete:
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+      summary: Очистить корзину пользователя
+      tags:
+      - cart
+    get:
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.GetCartResponse'
+        "404":
+          description: cart is empty
+          schema:
+            type: string
+      summary: Получить содержимое корзины
+      tags:
+      - cart
+  /user/{user_id}/cart/{sku_id}:
+    delete:
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - description: SKU
+        in: path
+        name: sku_id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+      summary: Удалить товар из корзины
+      tags:
+      - cart
+    post:
+      consumes:
+      - application/json
+      description: Добавляет SKU в корзину пользователя после проверки существования
+        во внешнем ProductService
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - description: SKU товара
+        in: path
+        name: sku_id
+        required: true
+        type: integer
+      - description: Количество
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/domain.AddToCartRequest'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: invalid input
+          schema:
+            type: string
+        "404":
+          description: product not found
+          schema:
+            type: string
+        "500":
+          description: server error
+          schema:
+            type: string
+      summary: Добавить товар в корзину
+      tags:
+      - cart
+schemes:
+- http
+swagger: "2.0"

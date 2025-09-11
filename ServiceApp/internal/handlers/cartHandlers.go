@@ -81,6 +81,19 @@ func parseID(s string) (uint64, error) {
 	return uint64(id), nil
 }
 
+// addToCart godoc
+// @Summary      Добавить товар в корзину
+// @Description  Добавляет SKU в корзину пользователя после проверки существования во внешнем ProductService
+// @Tags         cart
+// @Accept       json
+// @Param        user_id path int true "ID пользователя"
+// @Param        sku_id  path int true "SKU товара"
+// @Param        payload body domain.AddToCartRequest true "Количество"
+// @Success      200 "OK"
+// @Failure      400 {string} string "invalid input"
+// @Failure      404 {string} string "product not found"
+// @Failure      500 {string} string "server error"
+// @Router       /user/{user_id}/cart/{sku_id} [post]
 func (c *CartRouter) addToCart(w http.ResponseWriter, req *http.Request, userID uint64, skuStr string) {
 	skuID, err := parseID(skuStr)
 	if err != nil || !c.v.ValidateID(skuID) {
@@ -111,6 +124,13 @@ func (c *CartRouter) addToCart(w http.ResponseWriter, req *http.Request, userID 
 	w.WriteHeader(http.StatusOK)
 }
 
+// deleteItem godoc
+// @Summary      Удалить товар из корзины
+// @Tags         cart
+// @Param        user_id path int true "ID пользователя"
+// @Param        sku_id  path int true "SKU"
+// @Success      204 "No Content"
+// @Router       /user/{user_id}/cart/{sku_id} [delete]
 func (c *CartRouter) deleteItem(w http.ResponseWriter, _ *http.Request, userID uint64, skuStr string) {
 	skuID, err := parseID(skuStr)
 	if err != nil {
@@ -122,12 +142,25 @@ func (c *CartRouter) deleteItem(w http.ResponseWriter, _ *http.Request, userID u
 	w.WriteHeader(http.StatusNoContent)
 }
 
+// clearCart godoc
+// @Summary      Очистить корзину пользователя
+// @Tags         cart
+// @Param        user_id path int true "ID пользователя"
+// @Success      204 "No Content"
+// @Router       /user/{user_id}/cart [delete]
 func (c *CartRouter) clearCart(w http.ResponseWriter, _ *http.Request, userID uint64) {
 	c.cs.ClearCart(userID)
 
 	w.WriteHeader(http.StatusNoContent)
 }
 
+// getCart godoc
+// @Summary      Получить содержимое корзины
+// @Tags         cart
+// @Param        user_id path int true "ID пользователя"
+// @Success      200 {object} domain.GetCartResponse
+// @Failure      404 {string} string "cart is empty"
+// @Router       /user/{user_id}/cart [get]
 func (c *CartRouter) getCart(w http.ResponseWriter, req *http.Request, userID uint64) {
 	resp, err := c.cs.GetCart(req.Context(), userID)
 	if err != nil {
