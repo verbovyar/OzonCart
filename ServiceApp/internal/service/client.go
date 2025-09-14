@@ -15,8 +15,11 @@ type Product struct {
 	Price uint64 `json:"price"`
 }
 
+// internal/service/client.go
+//
+//go:generate minimock -i ClientIface     -o ../mocks      -s "_mock.go"
 type ClientIface interface {
-	GetProduct(ctx context.Context, sku int64) (*Product, error)
+	GetProduct(ctx context.Context, sku uint64) (*Product, error)
 }
 
 type ProductClient struct {

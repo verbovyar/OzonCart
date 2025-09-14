@@ -12,10 +12,10 @@ var ErrProductNotFound = errors.New("product not found")
 
 type CartService struct {
 	store interfaces.RepositoryIface
-	pc    *ProductClient
+	pc    ClientIface
 }
 
-func New(store interfaces.RepositoryIface, pc *ProductClient) *CartService {
+func New(store interfaces.RepositoryIface, pc ClientIface) *CartService {
 	return &CartService{
 		store: store,
 		pc:    pc,

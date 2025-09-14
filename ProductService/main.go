@@ -12,7 +12,7 @@ import (
 
 type getProductRequest struct {
 	Token string `json:"token"`
-	SKU   int64  `json:"sku"`
+	SKU   uint64 `json:"sku"`
 }
 
 type getProductResponse struct {
@@ -27,7 +27,7 @@ func main() {
 	)
 	flag.Parse()
 
-	products := map[int64]getProductResponse{
+	products := map[uint64]getProductResponse{
 		1001: {Name: "Demo T-Shirt", Price: 1500},
 		1002: {Name: "Coffee Mug", Price: 900},
 		1003: {Name: "Sticker Pack", Price: 300},

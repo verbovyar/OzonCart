@@ -29,21 +29,33 @@ func New(pool PgxPoolIface) *Store {
 func (s *Store) AddItem(ctx context.Context, userID, skuID, count uint64) error {
 	query := `INSERT INTO Cart (user_id, sku_id, count) VALUES ($1, $2, $3) 
 				ON CONFLICT (user_id, sku_id) DO UPDATE SET count = cart.count + EXCLUDED.count`
-	_, err := s.pool.Query(ctx, query, userID, skuID, count)
+	rows, err := s.pool.Query(ctx, query, userID, skuID, count)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
 
 	return err
 }
 
 func (s *Store) DeleteItem(ctx context.Context, userID, skuID uint64) error {
 	query := `DELETE FROM Cart WHERE user_id=$1 AND sku_id=$2`
-	_, err := s.pool.Query(ctx, query, userID, skuID)
+	rows, err := s.pool.Query(ctx, query, userID, skuID)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
 
 	return err
 }
 
 func (s *Store) ClearCart(ctx context.Context, userID uint64) error {
 	query := `DELETE FROM Cart WHERE user_id=$1`
-	_, err := s.pool.Query(ctx, query, userID)
+	rows, err := s.pool.Query(ctx, query, userID)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
 
 	return err
 }

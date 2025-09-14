@@ -167,10 +167,6 @@ func (c *CartRouter) getCart(w http.ResponseWriter, req *http.Request, userID ui
 		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return
 	}
-	if len(resp.Items) == 0 {
-		http.NotFound(w, req)
-		return
-	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

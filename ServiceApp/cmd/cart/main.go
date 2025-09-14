@@ -52,10 +52,6 @@ func RunHttp(cs *service.CartService, port string) {
 	mux := http.NewServeMux()
 	mux.Handle("/user/", handlers.New(cs)) // handlers
 
-	mux.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {
-		w.Write([]byte("ok"))
-	})
-	// ВАЖНО: URL("/swagger/doc.json"), и именно префикс /swagger/
 	mux.Handle("/swagger/", httpSwagger.Handler(
 		httpSwagger.URL("/swagger/doc.json"),
 	))
