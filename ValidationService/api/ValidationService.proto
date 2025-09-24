@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package validation;
+
+option go_package = "api/ValidationServiceApiPb";
+
+import "google/api/annotations.proto";
+import "google/api/http.proto";
+
+service ValidationService {
+  rpc ValidateAddToCart(AddToCartRequest) returns (GetCartResponse) {
+    option (google.api.http) = {
+      post: "/validate/cart/add"
+      body: "*"
+    };
+  }
+
+  rpc ValidateDeleteItem(DeleteItemRequest) returns (GetCartResponse) {
+    option (google.api.http) = {
+      delete: "/validate/cart/{user_id}/item/{sku_id}"
+    };
+  }
+
+  rpc ValidateClearCart(ClearCartRequest) returns (GetCartResponse) {
+    option (google.api.http) = {
+      delete: "/validate/cart/{user_id}"
+    };
+  }
+
+  rpc ValidateGetCart(GetCartRequest) returns (GetCartResponse) {
+    option (google.api.http) = {
+      get: "/validate/cart/{user_id}"
+    };
+  }
+}
+
+message AddToCartRequest {
+  uint64 user_id = 1;
+  uint64 sku_id  = 2;
+  uint64 count   = 3;
+}
+
+message DeleteItemRequest {
+  uint64 user_id = 1;
+  uint64 sku_id  = 2;
+}
+
+message ClearCartRequest {
+  uint64 user_id = 1;
+}
+
+message GetCartRequest {
+  uint64 user_id = 1;
+}
+
+message CartItem {
+  uint64 sku_id = 1;
+  string name   = 2;
+  uint64 count  = 3;
+  uint64 price  = 4;
+}
+
+message GetCartResponse {
+  repeated CartItem items = 1;
+  uint64 total_price      = 2;
+}

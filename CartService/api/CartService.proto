@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package cart;
+
+option go_package = "api/CartServiceApiPb";
+
+service CartService {
+  rpc AddToCart(AddToCartRequest) returns (GetCartResponse);
+  rpc DeleteItem(DeleteItemRequest) returns (GetCartResponse);
+  rpc ClearCart(ClearCartRequest) returns (GetCartResponse);
+  rpc GetCart(GetCartRequest) returns (GetCartResponse);
+}
+
+message AddToCartRequest {
+  uint64 user_id = 1;
+  uint64 sku_id  = 2;
+  uint64 count   = 3;
+}
+
+message DeleteItemRequest {
+  uint64 user_id = 1;
+  uint64 sku_id  = 2;
+}
+
+message ClearCartRequest {
+  uint64 user_id = 1;
+}
+
+message GetCartRequest {
+  uint64 user_id = 1;
+}
+
+message CartItem {
+  uint64 sku_id = 1;
+  string name   = 2;
+  uint64 count  = 3;
+  uint64 price  = 4;
+}
+
+message GetCartResponse {
+  repeated CartItem items = 1;
+  uint64 total_price      = 2;
+}
