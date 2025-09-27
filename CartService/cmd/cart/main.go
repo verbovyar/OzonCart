@@ -9,7 +9,6 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger"
 	"github.com/verbovyar/OzonCart/api/CartServiceApiPb"
 	"github.com/verbovyar/OzonCart/config"
-	"github.com/verbovyar/OzonCart/internal/docs"
 	"github.com/verbovyar/OzonCart/internal/handlers"
 	"github.com/verbovyar/OzonCart/internal/middleware"
 	"github.com/verbovyar/OzonCart/internal/repositories/db/postgres"
@@ -17,6 +16,9 @@ import (
 	"github.com/verbovyar/OzonCart/internal/service"
 	"github.com/verbovyar/OzonCart/pkg"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
+	healthpb "google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/reflection"
 )
 
 // @title           Cart Service
@@ -25,7 +27,7 @@ import (
 // @BasePath        /
 // @schemes         http
 func main() {
-	docs.SwaggerInfo.BasePath = "/"
+	//docs.SwaggerInfo.BasePath = "/"
 
 	conf, err := config.LoadConfig("./config")
 	if err != nil {
@@ -78,9 +80,13 @@ func RunGrpc(cs *service.CartService, port string, networkType string) {
 		log.Fatal(err)
 	}
 
-	grpcServer := grpc.NewServer()
-	CartServiceApiPb.RegisterCartServiceServer(grpcServer, handlers.NewGrpsRouter(cs))
+	grpcSrv := grpc.NewServer()
+	CartServiceApiPb.RegisterCartServiceServer(grpcSrv, handlers.NewGrpsRouter(cs))
 
-	log.Printf("CartService gRPC listening:%s", port)
-	log.Fatal(grpcServer.Serve(listener))
+	// health + reflection
+	healthpb.RegisterHealthServer(grpcSrv, health.NewServer())
+	reflection.Register(grpcSrv)
+
+	log.Println("CartService gRPC :50051")
+	log.Fatal(grpcSrv.Serve(listener))
 }

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"log"
 	"validation/api/ValidationServiceApiPb"
 	"validation/infrastructure/cartServiceClient/api/CartServiceApiPb"
 
@@ -29,7 +30,7 @@ func forwardMeta(ctx context.Context, hdr, trl metadata.MD) {
 	}
 }
 
-func (v *ValidationRouter) AddToCart(ctx context.Context, in *ValidationServiceApiPb.AddToCartRequest) (*ValidationServiceApiPb.GetCartResponse, error) {
+func (v *ValidationRouter) ValidateAddToCart(ctx context.Context, in *ValidationServiceApiPb.AddToCartRequest) (*ValidationServiceApiPb.GetCartResponse, error) {
 	if in.GetUserId() == 0 || in.GetSkuId() == 0 || in.GetCount() == 0 {
 		return nil, status.Error(codes.InvalidArgument, "invalid input")
 	}
@@ -42,6 +43,8 @@ func (v *ValidationRouter) AddToCart(ctx context.Context, in *ValidationServiceA
 		Count:  in.Count,
 	}, grpc.Header(&hdr), grpc.Trailer(&trl))
 
+	log.Printf("Used AddToCart")
+
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +54,7 @@ func (v *ValidationRouter) AddToCart(ctx context.Context, in *ValidationServiceA
 	return toValResp(res), nil
 }
 
-func (v *ValidationRouter) DeleteItem(ctx context.Context, in *ValidationServiceApiPb.DeleteItemRequest) (*ValidationServiceApiPb.GetCartResponse, error) {
+func (v *ValidationRouter) ValidateDeleteItem(ctx context.Context, in *ValidationServiceApiPb.DeleteItemRequest) (*ValidationServiceApiPb.GetCartResponse, error) {
 	if in.GetUserId() == 0 || in.GetSkuId() == 0 {
 		return nil, status.Error(codes.InvalidArgument, "invalid input")
 	}
@@ -72,7 +75,7 @@ func (v *ValidationRouter) DeleteItem(ctx context.Context, in *ValidationService
 	return toValResp(res), nil
 }
 
-func (v *ValidationRouter) ClearCart(ctx context.Context, in *ValidationServiceApiPb.ClearCartRequest) (*ValidationServiceApiPb.GetCartResponse, error) {
+func (v *ValidationRouter) ValidateClearCart(ctx context.Context, in *ValidationServiceApiPb.ClearCartRequest) (*ValidationServiceApiPb.GetCartResponse, error) {
 	if in.GetUserId() == 0 {
 		return nil, status.Error(codes.InvalidArgument, "invalid input")
 	}
@@ -90,7 +93,7 @@ func (v *ValidationRouter) ClearCart(ctx context.Context, in *ValidationServiceA
 	return toValResp(res), nil
 }
 
-func (v *ValidationRouter) GetCart(ctx context.Context, in *ValidationServiceApiPb.GetCartRequest) (*ValidationServiceApiPb.GetCartResponse, error) {
+func (v *ValidationRouter) ValidateGetCart(ctx context.Context, in *ValidationServiceApiPb.GetCartRequest) (*ValidationServiceApiPb.GetCartResponse, error) {
 	if in.GetUserId() == 0 {
 		return nil, status.Error(codes.InvalidArgument, "invalid input")
 	}
