@@ -1,4 +1,3 @@
-// ValidationService/cmd/validation/main.go
 package main
 
 import (
@@ -42,7 +41,6 @@ func mustReadSwagger() []byte {
 }
 
 func main() {
-	// --- gRPC-клиент CartService (не падаем в «подвис», добавим WithBlock + таймаут) ---
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -59,7 +57,6 @@ func main() {
 
 	cartClient := cartpb.NewCartServiceClient(cartConn)
 
-	// --- gRPC-сервер ValidationService на :50052 ---
 	lis, err := net.Listen("tcp", ":50052")
 	if err != nil {
 		log.Fatal(err)
@@ -73,24 +70,20 @@ func main() {
 		log.Fatal(grpcSrv.Serve(lis))
 	}()
 
-	// --- HTTP Gateway (ВАЖНО: вешаем на КОРЕНЬ, без /api префиксов) ---
 	gwMux := gw.NewServeMux()
 	if err := valpb.RegisterValidationServiceHandlerServer(context.Background(), gwMux, valSrv); err != nil {
 		log.Fatal(err)
 	}
 
-	// --- Swagger JSON + простой UI ---
 	swaggerJSON := mustReadSwagger()
 
 	mux := http.NewServeMux()
 
-	// Swagger JSON
 	mux.HandleFunc("/swagger/ValidationService.swagger.json", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = w.Write(swaggerJSON)
 	})
 
-	// Простой Swagger UI (CDN), чтобы «Try it out» бил в gateway
 	mux.HandleFunc("/swagger", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -117,9 +110,6 @@ func main() {
 </html>`))
 	})
 
-	// Корневой обработчик:
-	// - только точный GET "/" редиректим на UI
-	// - все остальные пути отдаём gateway (чтобы /validate/... шёл в хендлеры)
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/" && r.Method == http.MethodGet {
 			http.Redirect(w, r, "/swagger", http.StatusFound)
